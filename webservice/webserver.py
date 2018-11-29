@@ -29,7 +29,7 @@ def prodAtual(matricula):
         else:
             return 'Permissão negada'
     else:
-        return 'uhul'
+        return 'Permissão negada'
 
 if __name__ == '__main__':
     app.secret_key = 'super secret key'

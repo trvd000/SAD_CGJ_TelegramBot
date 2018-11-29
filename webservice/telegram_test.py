@@ -30,8 +30,8 @@ filter_third = FilterThird()
 
 def atual(bot, update):
     telegram_id = update.message.chat_id
-    bot.send_message(chat_id=update.message.chat_id, text='oi')
-    path = 'C:/Users/f3012012/Documents/TJRR/SAD_CGJ_Bot/server/webservice/'
+#    bot.send_message(chat_id=update.message.chat_id, text='oi')
+#    path = 'C:/Users/f3012012/Documents/TJRR/SAD_CGJ_Bot/server/webservice/'
     servidor = session.query(Servidores).filter_by(telegram_id = telegram_id).one()
     url_api = 'http://10.50.16.80:5000/{}/produtividade/atual/'.format(servidor.matricula)
     info = {'telegram_id' : telegram_id}
