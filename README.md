@@ -14,5 +14,7 @@
 >
 >6. cd /vagrant/webservice e execute o comando python webserver.py
 >
->7. abra outro terminal, navegue ao mesmo diretório e execute python telegram_test.py
+>7. abra outro terminal, e loogue na VM com vagrant ssh. 
+>
+>8. Navegue ao mesmo diretório e execute python telegram_test.py
 
