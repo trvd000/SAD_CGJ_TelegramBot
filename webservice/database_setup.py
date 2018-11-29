@@ -10,7 +10,7 @@ class Servidores(Base):
     __tablename__ = 'servidores'
     id = Column(Integer, primary_key=True)
     nome = Column(String(80), nullable=False)
-    telegram_id = Column(Integer, nullable=False)
+    telegram_id = Column(String(15), nullable=False)
     matricula = Column(String(15), nullable=False)
     cargo = Column(String(20), nullable=False)
 
