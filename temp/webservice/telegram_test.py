@@ -1,5 +1,7 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, BaseFilter
 import requests
+from functools import wraps
+from telegram import ChatAction, ReplyKeyboardMarkup
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -23,6 +25,20 @@ else:
     updater = Updater(token=token)
 dispatcher = updater.dispatcher
 
+def send_action(action):
+    """Sends `action` while processing func command."""
+
+    def decorator(func):
+        @wraps(func)
+        def command_func(*args, **kwargs):
+            bot, update = args
+            bot.send_chat_action(chat_id=update.effective_message.chat_id, action=action)
+            return func(bot, update, **kwargs)
+        return command_func
+    
+    return decorator
+
+
 class FilterAtual(BaseFilter):
     def filter(self, message):
         return 'atual' in message.text
@@ -34,6 +50,10 @@ class FilterThird(BaseFilter):
 filter_atual = FilterAtual()
 filter_third = FilterThird()
 
+custom_keyboard = [['Produtividade atual']]
+reply_markup = ReplyKeyboardMarkup(custom_keyboard)
+
+@send_action(ChatAction.TYPING)
 def atual(bot, update):
     telegram_id = update.message.chat_id
 #    bot.send_message(chat_id=update.message.chat_id, text='oi')
@@ -54,7 +74,7 @@ def third(bot, update):
 
 
 def start(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text='Para relatorio de produtividade atual diga "atual"')
+    bot.send_message(chat_id=update.message.chat_id, text='Para relatorio de produtividade atual para o ID {} utilize o botão abaixo'.format(update.message.chat_id), reply_markup=reply_markup)
 
 atual_handler = MessageHandler(filter_atual, atual)
 third_handler = MessageHandler(filter_third, third)

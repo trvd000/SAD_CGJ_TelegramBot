@@ -28,15 +28,15 @@ def prodAtual(matricula):
     servidor = session.query(Servidores).filter_by(matricula = matricula).one()
     if request.method == 'POST':
         if servidor.telegram_id == request.args['telegram_id']:
-            os.chdir(servidor.matricula)
+            os.chdir('{} - {}'.format(servidor.matricula, servidor.nome))
             list_dir = os.listdir('.')
             print(sorted(list_dir, reverse=True)[0])
-            return send_file('{}/{}'.format(servidor.matricula, sorted(list_dir, reverse=True)[0]))#, attachment_filename=sorted(list_dir, reverse=True)[0])
+            return send_file('{} - {}/{}'.format(servidor.matricula, servidor.nome, sorted(list_dir, reverse=True)[0]))#, attachment_filename=sorted(list_dir, reverse=True)[0])
         else:
             return 'Acesso negado'
     else:
         if request.args.get('telegram_id') == servidor.telegram_id:
-            os.chdir(servidor.matricula)
+            os.chdir('{} - {}'.format(servidor.matricula, servidor.nome))
             list_dir = os.listdir('.')
             return(sorted(list_dir, reverse=True)[0])
         else:
