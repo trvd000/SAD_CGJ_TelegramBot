@@ -21,12 +21,12 @@ def servInfoJSON(matricula):
     servidor = session.query(Servidores).filter_by(matricula = matricula).one()
     return jsonify(infoServidor=[servidor.serialize])
 
-
+ 
 @app.route('/<matricula>/produtividade/atual/', methods=['GET', 'POST'])
 def prodAtual(matricula):
     os.chdir(cwd)
     servidor = session.query(Servidores).filter_by(matricula = matricula).one()
-    if request.method == 'POST':
+    if (request.method == 'POST') or (request.args.get('app') == 'true'):
         if servidor.telegram_id == request.args['telegram_id']:
             os.chdir('{} - {}'.format(servidor.matricula, servidor.nome))
             list_dir = os.listdir('.')

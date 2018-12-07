@@ -7,10 +7,20 @@ magistrados = ['AIR MARIN JUNIOR', 'ALEXANDRE MAGNO MAGALHAES VIEIRA', 'ALMIRO P
 mat = 0
 files = os.listdir('.')
 sortedFiles = sorted(files)
+# coloca 0 antes das unidades para o sort dar certo
 for f in sortedFiles:
-    if f == 'renomeiaFiles.py':
+    if f in ['1.pdf', '2.pdf', '3.pdf', '4.pdf', '5.pdf', '6.pdf', '7.pdf', '8.pdf', '9.pdf']:
+        os.rename(f, '0{}'.format(f))
+# novo sort com unidades renomeadas
+files = os.listdir('.')
+sortedFiles = sorted(files)
+for f in sortedFiles:
+    if f == 'renomeiaFiles.py' or f == 'instrucoes.txt' or f == 'webservice':
         break
-    arq = '2018-12-04-{}.pdf'.format(matriculas[mat])
-    os.rename(f, 'webservice/{} - {}/{}'.format(matriculas[mat], magistrados[mat], arq))
-    mat += 1
+    if f in ['07.pdf', '41.pdf']:
+        os.remove(f)
+    else:
+        arq = '2018-12-05-{}.pdf'.format(matriculas[mat])
+        os.rename(f, 'webservice/{} - {}/{}'.format(matriculas[mat], magistrados[mat], arq))
+        mat += 1
 
