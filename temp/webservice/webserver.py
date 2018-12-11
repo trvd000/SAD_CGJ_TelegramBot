@@ -5,6 +5,8 @@ from sqlalchemy.pool import StaticPool
 from database_setup import Base, Servidores
 from config import ip
 import os
+from hashlib import md5
+
 
 app = Flask(__name__)
 
@@ -26,7 +28,8 @@ def servInfoJSON(matricula):
 def prodAtual(matricula):
     os.chdir(cwd)
     servidor = session.query(Servidores).filter_by(matricula = matricula).one()
-    if (request.method == 'POST') or (request.args.get('app') == 'true'):
+    hashMat = md5(matricula.encode(encoding='utf-8', errors='strict')).hexdigest()
+    if (request.method == 'POST') or (request.args.get('lolol') == hashMat):
         if servidor.telegram_id == request.args['telegram_id']:
             os.chdir('{} - {}'.format(servidor.matricula, servidor.nome))
             list_dir = os.listdir('.')
