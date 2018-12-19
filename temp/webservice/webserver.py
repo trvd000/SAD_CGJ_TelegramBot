@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from database_setup import Base, Servidores
+from database_setup import Base, Servidores, Subordinados
 from config import ip
 import os
 from hashlib import md5
@@ -29,8 +29,10 @@ def prodAtual(matricula):
     os.chdir(cwd)
     servidor = session.query(Servidores).filter_by(matricula = matricula).one()
     hashMat = md5(matricula.encode(encoding='utf-8', errors='strict')).hexdigest()
-    if (request.method == 'POST') or (request.args.get('lolol') == hashMat):
-        if servidor.telegram_id == request.args['telegram_id']:
+    if (request.method == 'POST') or (request.args.get('lolol') == hashMat) or (request.method == 'POST' and request.args['sub'] == 't'):
+        if servidor.telegram_id == request.args['telegram_id'] or request.args['sub'] == 't':
+            if request.args['sub'] == 't':
+                servidor = session.query(Subordinados).filter_by(matricula = matricula).one()
             os.chdir('{} - {}'.format(servidor.matricula, servidor.nome))
             list_dir = os.listdir('.')
             print(sorted(list_dir, reverse=True)[0])

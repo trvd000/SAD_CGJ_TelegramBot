@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Servidores, Base
+from database_setup import Servidores, Base, Subordinados
 
 engine = create_engine('sqlite:///servidores.db')
 Base.metadata.bind = engine
@@ -22,3 +22,10 @@ servidor3 = Servidores(nome='Lucas Sabio', matricula='f3012012', telegram_id='55
 session.add(servidor3)
 session.commit()
 
+subordinado1 = Subordinados(nome='Lucas Sabio', matricula='f3012012', magistrado='f3011486', cargo='magistrado')
+session.add(subordinado1)
+session.commit()
+
+subordinado2 = Subordinados(nome='Roberto Silva', matricula='f3011472', magistrado='f3012012', cargo='servidor')
+session.add(subordinado2)
+session.commit()

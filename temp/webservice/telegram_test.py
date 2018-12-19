@@ -5,7 +5,7 @@ from telegram import ChatAction, ReplyKeyboardMarkup
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from database_setup import Base, Servidores
+from database_setup import Base, Servidores, Subordinados
 import io
 import datetime
 from config import proxy_config, ip, usaProxy
@@ -47,8 +47,13 @@ class FilterThird(BaseFilter):
     def filter(self, message):
         return 'manda o terceiro' in message.text
 
+class FilterServidor(BaseFilter):
+    def filter(self, message):
+        return 'produtividade do servidor' in message.text
+
 filter_atual = FilterAtual()
 filter_third = FilterThird()
+filter_servidor = FilterServidor()
 
 custom_keyboard = [['Produtividade atual']]
 reply_markup = ReplyKeyboardMarkup(custom_keyboard)
@@ -76,10 +81,40 @@ def third(bot, update):
 def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text='Para relatorio de produtividade atual para o ID {} utilize o botão abaixo'.format(update.message.chat_id), reply_markup=reply_markup)
 
+def prodServ(bot, update):
+    telegram_id = update.message.chat_id
+    magistrado = session.query(Servidores).filter_by(telegram_id = telegram_id).one()
+    marcador = update.message.text.find('f30')
+    matricula_servidor = update.message.text[marcador:(marcador+8)]
+    bot.send_message(chat_id=update.message.chat_id, text='a matricula do servidor e {}?'.format(matricula_servidor))
+    subordinados = session.query(Subordinados).filter_by(magistrado = magistrado.matricula).all()
+    print(subordinados)
+    for subordinado in subordinados:
+        if subordinado.matricula == matricula_servidor:
+            url_api = 'http://{}:5000/{}/produtividade/atual/'.format(ip, subordinado.matricula)
+            info = {'telegram_id' : telegram_id, 'sub' : 't'}
+            r = requests.post(url=url_api, params=info)
+            doc = io.BytesIO(r.content)
+            r = requests.get(url=url_api, params=info)
+            doc.name = r.text
+            bot.send_message(chat_id=update.message.chat_id, text='OK. Enviando produtividade atual do {} {}.'.format(subordinado.cargo, subordinado.nome))
+            bot.send_document(chat_id=telegram_id, document=doc)
+            return
+    bot.send_message(chat_id=update.message.chat_id, text='Desculpe. permissao negada ou servidor nao encontrado')
+        
+
+
+
+
+
+
+
 atual_handler = MessageHandler(filter_atual, atual)
 third_handler = MessageHandler(filter_third, third)
+servidor_handler = MessageHandler(filter_servidor, prodServ)
 dispatcher.add_handler(CommandHandler("start", start))
 dispatcher.add_handler(atual_handler)
+dispatcher.add_handler(servidor_handler)
 dispatcher.add_handler(third_handler)
 
 

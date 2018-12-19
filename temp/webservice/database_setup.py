@@ -5,6 +5,14 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+class Subordinados(Base):
+    __tablename__ = 'subordinados'
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(80), nullable=False)
+    magistrado = Column(String(15), nullable=False)
+    matricula = Column(String(15), nullable=False)
+    cargo = Column(String(20), nullable=False)
+
 
 class Servidores(Base):
     __tablename__ = 'servidores'
