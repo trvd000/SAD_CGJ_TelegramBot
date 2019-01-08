@@ -11,6 +11,7 @@ class Subordinados(Base):
     nome = Column(String(80), nullable=False)
     magistrado = Column(String(15), nullable=False)
     matricula = Column(String(15), nullable=False)
+    telegram_id = Column(String(15), nullable=True)
     cargo = Column(String(20), nullable=False)
 
 

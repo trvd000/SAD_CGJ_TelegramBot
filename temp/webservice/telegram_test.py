@@ -39,24 +39,29 @@ def send_action(action):
     return decorator
 
 
-class FilterAtual(BaseFilter):
+class FilterSelf(BaseFilter):
     def filter(self, message):
-        return 'atual' in message.text
+        return 'Pessoal' in message.text
 
 class FilterThird(BaseFilter):
     def filter(self, message):
         return 'manda o terceiro' in message.text
 
+class FilterServidores(BaseFilter):
+    def filter(self, message):
+        return 'Servidores' in message.text
+
 class FilterServidor(BaseFilter):
     def filter(self, message):
-        return 'produtividade do servidor' in message.text
+        return 'servidor' in message.text
 
-filter_atual = FilterAtual()
+filter_self = FilterSelf()
 filter_third = FilterThird()
+filter_servidores = FilterServidores()
 filter_servidor = FilterServidor()
 
-custom_keyboard = [['Produtividade atual']]
-reply_markup = ReplyKeyboardMarkup(custom_keyboard)
+menu_keyboard = [['Unidade'], ['Prod. Pessoal'], ['Servidores']]
+main_menu = ReplyKeyboardMarkup(menu_keyboard)
 
 @send_action(ChatAction.TYPING)
 def atual(bot, update):
@@ -70,7 +75,7 @@ def atual(bot, update):
     doc = io.BytesIO(r.content)
     r = requests.get(url=url_api, params=info)
     doc.name = r.text
-    bot.send_message(chat_id=update.message.chat_id, text='OK. Enviando produtividade atual do {} {}.'.format(servidor.cargo, servidor.nome))
+    bot.send_message(chat_id=update.message.chat_id, text='OK. Enviando produtividade atual do {} {}.'.format(servidor.cargo, servidor.nome), reply_markup = main_menu)
     bot.send_document(chat_id=telegram_id, document=doc)
 
 
@@ -79,7 +84,7 @@ def third(bot, update):
 
 
 def start(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text='Para relatorio de produtividade atual para o ID {} utilize o botão abaixo'.format(update.message.chat_id), reply_markup=reply_markup)
+    bot.send_message(chat_id=update.message.chat_id, text='Utilize os botões abaixo para receber os relatorios de produtividade. ID telegram: {}'.format(update.message.chat_id), reply_markup=main_menu)
 
 def prodServ(bot, update):
     telegram_id = update.message.chat_id
@@ -93,15 +98,32 @@ def prodServ(bot, update):
         if subordinado.matricula == matricula_servidor:
             url_api = 'http://{}:5000/{}/produtividade/atual/'.format(ip, subordinado.matricula)
             info = {'telegram_id' : telegram_id, 'sub' : 't'}
+#            info2 = {'telegram_id' : telegram_id}
             r = requests.post(url=url_api, params=info)
             doc = io.BytesIO(r.content)
             r = requests.get(url=url_api, params=info)
+            print(r.text)
             doc.name = r.text
-            bot.send_message(chat_id=update.message.chat_id, text='OK. Enviando produtividade atual do {} {}.'.format(subordinado.cargo, subordinado.nome))
+            print(doc.name)
+            bot.send_message(chat_id=update.message.chat_id, text='OK. Enviando produtividade atual do {} {}.'.format(subordinado.cargo, subordinado.nome), reply_markup = main_menu)
             bot.send_document(chat_id=telegram_id, document=doc)
             return
     bot.send_message(chat_id=update.message.chat_id, text='Desculpe. permissao negada ou servidor nao encontrado')
         
+        
+def listServ(bot, update):
+    telegram_id = update.message.chat_id
+    try:
+        magistrado = session.query(Servidores).filter_by(telegram_id = telegram_id).one()
+    except:
+        bot.send_message(chat_id=update.message.chat_id, text='Desculpe. Magistrado não cadastrado.')
+        return
+    subordinados = session.query(Subordinados).filter_by(magistrado = magistrado.matricula).all()
+    servList = []
+    for servidor in subordinados:
+        servList.append(['servidor {} - {}'.format(servidor.nome, servidor.matricula)])
+    serv_menu = ReplyKeyboardMarkup(servList)
+    bot.send_message(chat_id=update.message.chat_id, text='Qual o servidor?', reply_markup=serv_menu)
 
 
 
@@ -109,12 +131,14 @@ def prodServ(bot, update):
 
 
 
-atual_handler = MessageHandler(filter_atual, atual)
+self_handler = MessageHandler(filter_self, atual)
 third_handler = MessageHandler(filter_third, third)
+servidores_handler = MessageHandler(filter_servidores, listServ)
 servidor_handler = MessageHandler(filter_servidor, prodServ)
 dispatcher.add_handler(CommandHandler("start", start))
-dispatcher.add_handler(atual_handler)
+dispatcher.add_handler(self_handler)
 dispatcher.add_handler(servidor_handler)
+dispatcher.add_handler(servidores_handler)
 dispatcher.add_handler(third_handler)
 
 

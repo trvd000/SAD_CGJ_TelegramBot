@@ -22,6 +22,10 @@ servidor3 = Servidores(nome='Lucas Sabio', matricula='f3012012', telegram_id='55
 session.add(servidor3)
 session.commit()
 
+servidor4 = Servidores(nome='Clara Alice', matricula='f3012000', telegram_id='568408568', cargo='magistrado')
+session.add(servidor3)
+session.commit()
+
 subordinado1 = Subordinados(nome='Lucas Sabio', matricula='f3012012', magistrado='f3011486', cargo='magistrado')
 session.add(subordinado1)
 session.commit()
@@ -29,3 +33,8 @@ session.commit()
 subordinado2 = Subordinados(nome='Roberto Silva', matricula='f3011472', magistrado='f3012012', cargo='servidor')
 session.add(subordinado2)
 session.commit()
+
+subordinado3 = Subordinados(nome='Outro Servidor', matricula='f300280', magistrado='f3012012', cargo='servidor')
+session.add(subordinado3)
+session.commit()
+

@@ -27,7 +27,14 @@ def servInfoJSON(matricula):
 @app.route('/<matricula>/produtividade/atual/', methods=['GET', 'POST'])
 def prodAtual(matricula):
     os.chdir(cwd)
-    servidor = session.query(Servidores).filter_by(matricula = matricula).one()
+    try:
+        servidor2 = session.query(Subordinados).filter_by(matricula = matricula).one() 
+        servidor = session.query(Servidores).filter_by(matricula = matricula).one()
+    except:
+        try:
+            servidor = session.query(Subordinados).filter_by(matricula = matricula).one()
+        except: 
+            return 'Servidor não encontrado.'
     hashMat = md5(matricula.encode(encoding='utf-8', errors='strict')).hexdigest()
     if (request.method == 'POST') or (request.args.get('lolol') == hashMat) or (request.method == 'POST' and request.args['sub'] == 't'):
         if servidor.telegram_id == request.args['telegram_id'] or request.args['sub'] == 't':
@@ -44,8 +51,13 @@ def prodAtual(matricula):
             os.chdir('{} - {}'.format(servidor.matricula, servidor.nome))
             list_dir = os.listdir('.')
             return(sorted(list_dir, reverse=True)[0])
+        elif request.args.get('sub') == 't':
+            os.chdir('{} - {}'.format(servidor2.matricula, servidor2.nome))
+            list_dir = os.listdir('.')
+            return(sorted(list_dir, reverse=True)[0])
         else:
             return 'Acesso negado'
+
 
 if __name__ == '__main__':
     app.secret_key = 'super secret key'
