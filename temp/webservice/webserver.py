@@ -38,7 +38,7 @@ def prodAtual(matricula):
     hashMat = md5(matricula.encode(encoding='utf-8', errors='strict')).hexdigest()
     if (request.method == 'POST') or (request.args.get('lolol') == hashMat) or (request.method == 'POST' and request.args['sub'] == 't'):
         if servidor.telegram_id == request.args['telegram_id'] or request.args['sub'] == 't':
-            if request.args['sub'] == 't':
+            if not (servidor.telegram_id == request.args['telegram_id']):
                 servidor = session.query(Subordinados).filter_by(matricula = matricula).one()
             os.chdir('{} - {}'.format(servidor.matricula, servidor.nome))
             list_dir = os.listdir('.')
